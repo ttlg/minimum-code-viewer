@@ -229,60 +229,99 @@ function showCode(content, filename) {
   statusLineInfo.textContent = `${lines.length} lines`;
 }
 
-// Simple syntax highlighting
+// Simple syntax highlighting using token-based approach
 function highlightSyntax(code, filename) {
   const ext = filename.split('.').pop().toLowerCase();
-  let escaped = escapeHtml(code);
+  const escaped = escapeHtml(code);
 
-  // Common patterns for highlighting
   const jsLikeLanguages = ['js', 'ts', 'jsx', 'tsx', 'json', 'vue', 'svelte'];
   const pyLikeLanguages = ['py', 'rb'];
   const cLikeLanguages = ['c', 'cpp', 'h', 'java', 'go', 'rs'];
 
+  let patterns = [];
+
   if (jsLikeLanguages.includes(ext) || cLikeLanguages.includes(ext)) {
-    // Keywords
     const keywords = ['const', 'let', 'var', 'function', 'return', 'if', 'else', 'for', 'while', 'class', 'extends', 'import', 'export', 'from', 'default', 'async', 'await', 'try', 'catch', 'throw', 'new', 'this', 'super', 'static', 'public', 'private', 'protected', 'interface', 'type', 'enum', 'implements', 'package', 'struct', 'fn', 'pub', 'mod', 'use', 'impl', 'trait', 'where', 'mut', 'ref', 'match', 'case', 'switch', 'break', 'continue', 'void', 'int', 'float', 'double', 'char', 'bool', 'boolean', 'string', 'number', 'any', 'null', 'undefined', 'true', 'false', 'nil', 'None'];
 
-    keywords.forEach(kw => {
-      escaped = escaped.replace(new RegExp(`\\b(${kw})\\b`, 'g'), '<span class="keyword">$1</span>');
-    });
-
-    // Strings
-    escaped = escaped.replace(/(["'`])(?:(?!\1)[^\\]|\\.)*?\1/g, '<span class="string">$&</span>');
-
-    // Comments
-    escaped = escaped.replace(/(\/\/.*$)/gm, '<span class="comment">$1</span>');
-    escaped = escaped.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="comment">$1</span>');
-
-    // Numbers
-    escaped = escaped.replace(/\b(\d+\.?\d*)\b/g, '<span class="number">$1</span>');
+    patterns = [
+      { regex: /(\/\/.*$)/gm, class: 'comment' },
+      { regex: /(\/\*[\s\S]*?\*\/)/g, class: 'comment' },
+      { regex: /(["'`])(?:(?!\1)[^\\]|\\.)*?\1/g, class: 'string' },
+      { regex: new RegExp(`\\b(${keywords.join('|')})\\b`, 'g'), class: 'keyword' },
+      { regex: /\b(\d+\.?\d*)\b/g, class: 'number' }
+    ];
   } else if (pyLikeLanguages.includes(ext)) {
-    const keywords = ['def', 'class', 'return', 'if', 'elif', 'else', 'for', 'while', 'import', 'from', 'as', 'try', 'except', 'raise', 'with', 'in', 'is', 'not', 'and', 'or', 'True', 'False', 'None', 'self', 'lambda', 'yield', 'global', 'nonlocal', 'pass', 'break', 'continue', 'end', 'do', 'then', 'unless', 'until', 'require', 'attr_accessor', 'attr_reader'];
+    const keywords = ['def', 'class', 'return', 'if', 'elif', 'else', 'for', 'while', 'import', 'from', 'as', 'try', 'except', 'raise', 'with', 'in', 'is', 'not', 'and', 'or', 'True', 'False', 'None', 'self', 'lambda', 'yield', 'global', 'nonlocal', 'pass', 'break', 'continue'];
 
-    keywords.forEach(kw => {
-      escaped = escaped.replace(new RegExp(`\\b(${kw})\\b`, 'g'), '<span class="keyword">$1</span>');
-    });
-
-    escaped = escaped.replace(/(["'])(?:(?!\1)[^\\]|\\.)*?\1/g, '<span class="string">$&</span>');
-    escaped = escaped.replace(/(#.*$)/gm, '<span class="comment">$1</span>');
-    escaped = escaped.replace(/\b(\d+\.?\d*)\b/g, '<span class="number">$1</span>');
+    patterns = [
+      { regex: /(#.*$)/gm, class: 'comment' },
+      { regex: /(["'])(?:(?!\1)[^\\]|\\.)*?\1/g, class: 'string' },
+      { regex: new RegExp(`\\b(${keywords.join('|')})\\b`, 'g'), class: 'keyword' },
+      { regex: /\b(\d+\.?\d*)\b/g, class: 'number' }
+    ];
   } else if (ext === 'html' || ext === 'xml') {
-    escaped = escaped.replace(/(&lt;\/?[\w-]+)/g, '<span class="keyword">$1</span>');
-    escaped = escaped.replace(/(&gt;)/g, '<span class="keyword">$1</span>');
-    escaped = escaped.replace(/(["'])(?:(?!\1)[^\\]|\\.)*?\1/g, '<span class="string">$&</span>');
-    escaped = escaped.replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="comment">$1</span>');
+    patterns = [
+      { regex: /(&lt;!--[\s\S]*?--&gt;)/g, class: 'comment' },
+      { regex: /(["'])(?:(?!\1)[^\\]|\\.)*?\1/g, class: 'string' },
+      { regex: /(&lt;\/?[\w-]+)/g, class: 'keyword' },
+      { regex: /(&gt;)/g, class: 'keyword' }
+    ];
   } else if (ext === 'css' || ext === 'scss') {
-    escaped = escaped.replace(/([\w-]+)(?=\s*:)/g, '<span class="keyword">$1</span>');
-    escaped = escaped.replace(/(["'])(?:(?!\1)[^\\]|\\.)*?\1/g, '<span class="string">$&</span>');
-    escaped = escaped.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="comment">$1</span>');
-    escaped = escaped.replace(/(#[\da-fA-F]{3,8})\b/g, '<span class="number">$1</span>');
+    patterns = [
+      { regex: /(\/\*[\s\S]*?\*\/)/g, class: 'comment' },
+      { regex: /(["'])(?:(?!\1)[^\\]|\\.)*?\1/g, class: 'string' },
+      { regex: /(#[\da-fA-F]{3,8})\b/g, class: 'number' }
+    ];
   } else if (ext === 'md') {
-    escaped = escaped.replace(/^(#{1,6}\s.*$)/gm, '<span class="keyword">$1</span>');
-    escaped = escaped.replace(/(\*\*.*?\*\*)/g, '<span class="keyword">$1</span>');
-    escaped = escaped.replace(/(`[^`]+`)/g, '<span class="string">$1</span>');
+    patterns = [
+      { regex: /^(#{1,6}\s.*$)/gm, class: 'keyword' },
+      { regex: /(`[^`]+`)/g, class: 'string' }
+    ];
   }
 
-  return escaped;
+  if (patterns.length === 0) {
+    return escaped;
+  }
+
+  // Tokenize: find all matches and their positions
+  const tokens = [];
+  patterns.forEach(pattern => {
+    let match;
+    const regex = new RegExp(pattern.regex.source, pattern.regex.flags);
+    while ((match = regex.exec(escaped)) !== null) {
+      tokens.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        text: match[0],
+        class: pattern.class
+      });
+    }
+  });
+
+  // Sort by start position
+  tokens.sort((a, b) => a.start - b.start);
+
+  // Remove overlapping tokens (keep first)
+  const filtered = [];
+  let lastEnd = 0;
+  for (const token of tokens) {
+    if (token.start >= lastEnd) {
+      filtered.push(token);
+      lastEnd = token.end;
+    }
+  }
+
+  // Build result
+  let result = '';
+  let pos = 0;
+  for (const token of filtered) {
+    result += escaped.slice(pos, token.start);
+    result += `<span class="${token.class}">${token.text}</span>`;
+    pos = token.end;
+  }
+  result += escaped.slice(pos);
+
+  return result;
 }
 
 // Escape HTML
