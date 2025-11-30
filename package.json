@@ -1,14 +1,39 @@
 {
-  "name": "minimum-code-viewer",
+  "name": "peep",
+  "productName": "Peep",
   "version": "1.0.0",
   "description": "A minimal code viewer with VSCode-like UI",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux"
   },
   "author": "",
   "license": "Unlicense",
   "devDependencies": {
-    "electron": "^33.0.0"
+    "electron": "^33.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.peep.app",
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    },
+    "files": [
+      "**/*",
+      "!node_modules/*/{CHANGELOG.md,README.md,readme.md,README,readme}",
+      "!node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!node_modules/.cache"
+    ]
   }
 }

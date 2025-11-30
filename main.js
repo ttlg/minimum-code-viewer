@@ -2,6 +2,8 @@ const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
+app.setName('Peep');
+
 let mainWindow;
 const fileWatchers = new Map();
 
