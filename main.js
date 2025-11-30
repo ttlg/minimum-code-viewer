@@ -25,15 +25,25 @@ function createWindow() {
   // Create application menu
   const template = [
     {
+      label: 'Peep',
+      submenu: [
+        { role: 'about' },
+        { type: 'separator' },
+        { role: 'hide' },
+        { role: 'hideOthers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { role: 'quit' }
+      ]
+    },
+    {
       label: 'File',
       submenu: [
         {
           label: 'Open Folder...',
           accelerator: 'CmdOrCtrl+O',
           click: () => openFolder()
-        },
-        { type: 'separator' },
-        { role: 'quit' }
+        }
       ]
     },
     {
