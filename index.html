@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+  <title>Code Viewer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">EXPLORER</span>
+      </div>
+      <div class="folder-header" id="folderHeader">
+        <button class="open-folder-btn" id="openFolderBtn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M14.5 3H7.71l-.85-.85L6.51 2h-5l-.5.5v11l.5.5h13l.5-.5v-10L14.5 3zm-.51 8.49V13h-12V7h4.49l.35-.15.86-.86H14v5.5h-.01zM6.51 6l-.35.15-.86.86H2v-4h4.29l.85.85.36.15H14v1H6.51z"/>
+          </svg>
+          Open Folder
+        </button>
+      </div>
+      <div class="project-name" id="projectName"></div>
+      <div class="file-tree" id="fileTree"></div>
+    </aside>
+
+    <!-- Editor Area -->
+    <main class="editor-area">
+      <!-- Tabs -->
+      <div class="tabs-container" id="tabsContainer"></div>
+
+      <!-- Code View -->
+      <div class="code-container" id="codeContainer">
+        <div class="welcome-screen" id="welcomeScreen">
+          <div class="welcome-content">
+            <h1>Code Viewer</h1>
+            <p>Open a folder to get started</p>
+            <button class="welcome-btn" id="welcomeOpenBtn">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M14.5 3H7.71l-.85-.85L6.51 2h-5l-.5.5v11l.5.5h13l.5-.5v-10L14.5 3zm-.51 8.49V13h-12V7h4.49l.35-.15.86-.86H14v5.5h-.01zM6.51 6l-.35.15-.86.86H2v-4h4.29l.85.85.36.15H14v1H6.51z"/>
+              </svg>
+              Open Folder
+            </button>
+          </div>
+        </div>
+        <div class="code-view" id="codeView">
+          <div class="line-numbers" id="lineNumbers"></div>
+          <pre class="code-content" id="codeContent"></pre>
+        </div>
+      </div>
+
+      <!-- Status Bar -->
+      <footer class="status-bar">
+        <div class="status-left">
+          <span id="statusFileInfo"></span>
+        </div>
+        <div class="status-right">
+          <span id="statusLineInfo"></span>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

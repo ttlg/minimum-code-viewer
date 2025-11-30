@@ -1,0 +1,14 @@
+{
+  "name": "minimum-code-viewer",
+  "version": "1.0.0",
+  "description": "A minimal code viewer with VSCode-like UI",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.0.0"
+  }
+}
