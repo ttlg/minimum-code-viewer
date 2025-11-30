@@ -26,6 +26,23 @@ npm start
 
 Then click "Open Folder" or use `Cmd+O` (macOS) / `Ctrl+O` (Windows/Linux) to open a project folder.
 
+## Build
+
+To build a standalone application:
+
+```bash
+# macOS
+npm run build:mac
+
+# Windows
+npm run build:win
+
+# Linux
+npm run build:linux
+```
+
+The built application will be output to the `dist/` directory.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
