@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 let mainWindow;
+const fileWatchers = new Map();
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -130,6 +131,45 @@ ipcMain.handle('read-file', async (event, filePath) => {
   } catch (err) {
     return { success: false, error: err.message };
   }
+});
+
+// Watch a file for changes
+ipcMain.handle('watch-file', async (event, filePath) => {
+  if (fileWatchers.has(filePath)) {
+    return { success: true };
+  }
+
+  try {
+    let lastMtime = null;
+
+    const listener = (curr, prev) => {
+      // Check if file was actually modified
+      if (curr.mtime.getTime() !== prev.mtime.getTime()) {
+        try {
+          const content = fs.readFileSync(filePath, 'utf-8');
+          mainWindow.webContents.send('file-changed', { path: filePath, content });
+        } catch (err) {
+          console.error(`Error reading changed file ${filePath}:`, err);
+        }
+      }
+    };
+
+    fs.watchFile(filePath, { interval: 300 }, listener);
+    fileWatchers.set(filePath, listener);
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+// Unwatch a file
+ipcMain.handle('unwatch-file', async (event, filePath) => {
+  const listener = fileWatchers.get(filePath);
+  if (listener) {
+    fs.unwatchFile(filePath, listener);
+    fileWatchers.delete(filePath);
+  }
+  return { success: true };
 });
 
 app.whenReady().then(createWindow);

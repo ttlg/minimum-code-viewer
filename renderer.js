@@ -28,11 +28,23 @@ window.api.onFolderOpened((data) => {
   projectName.textContent = folderName.toUpperCase();
   renderFileTree(data.tree);
 
-  // Clear tabs when opening new folder
+  // Unwatch all files and clear tabs when opening new folder
+  openTabs.forEach(tab => window.api.unwatchFile(tab.path));
   openTabs = [];
   activeTab = null;
   renderTabs();
   showWelcome();
+});
+
+// Listen for file changes
+window.api.onFileChanged((data) => {
+  const tab = openTabs.find(t => t.path === data.path);
+  if (tab) {
+    tab.content = data.content;
+    if (activeTab === tab) {
+      showCode(tab.content, tab.name);
+    }
+  }
 });
 
 // Render file tree
@@ -134,6 +146,9 @@ async function openFile(item) {
     openTabs.push(tab);
     setActiveTab(tab);
     renderTabs();
+
+    // Start watching the file for changes
+    window.api.watchFile(item.path);
   } else {
     console.error('Failed to read file:', result.error);
   }
@@ -173,6 +188,9 @@ function renderTabs() {
 function closeTab(tab) {
   const index = openTabs.indexOf(tab);
   openTabs.splice(index, 1);
+
+  // Stop watching the file
+  window.api.unwatchFile(tab.path);
 
   if (activeTab === tab) {
     if (openTabs.length > 0) {

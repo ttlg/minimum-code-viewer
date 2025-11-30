@@ -10,11 +10,6 @@ A minimal, read-only code viewer with a VSCode-like interface. Built with Electr
 - Dark theme inspired by VSCode
 - View-only (no editing capabilities)
 
-## Requirements
-
-- Node.js 18+
-- npm
-
 ## Installation
 
 ```bash
